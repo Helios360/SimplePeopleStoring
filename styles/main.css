@@ -1,0 +1,18 @@
+:root{
+    --primary:#F1F4F4;
+    --secondary:#000000;
+}
+html{
+    background-color: var(--primary);
+}
+
+header{
+    height:80px;
+    position:relative;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+header img {
+    height: 80px;
+}
