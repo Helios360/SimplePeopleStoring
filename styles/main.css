@@ -4,15 +4,101 @@
 }
 html{
     background-color: var(--primary);
+    height:100%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 header{
     height:80px;
     position:relative;
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-end;
     width: 100%;
 }
-header img {
-    height: 80px;
+main img {
+    height: 200px;
+    margin-bottom: 50px;
+}
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.form{
+    display:flex;
+    gap:53px;
+}
+.form div{
+    display: flex;
+    flex-direction: column;
+    gap:20px;
+}
+.form div div {gap:5px;}
+.form input{
+    padding-left:10px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary);
+    width:315px;
+    height:43px;
+    background-color: transparent;
+}
+.form label{
+    font-size: 15px;
+    padding-left: 8px;
+}
+.form2{
+    display: flex;
+    flex-direction: column;
+    gap:20px!important;
+    padding: 0;
+    margin: 0;
+}
+.form2 p {
+    font-size: 15px;
+    padding: 0;
+    margin: 0;
+}
+.form2 > li > label{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px!important;
+}
+.checkbox{
+    width: 330px;
+    flex-direction: row!important;
+    justify-content: center;
+    align-items: center;
+}
+.checkbox input{
+    width: 40px;
+}
+button{
+    width: 330px;
+    height:50px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary);
+    background-color: transparent;
+}
+button:hover{
+    background-color: var(--primary);
+
+}
+.signin{
+    gap: 20px !important;
+}
+.signin input{
+    margin: 0;
+}
+.signin button{
+    margin-top: 60px;
+}
+footer{
+    position : absolute;
+    bottom: 0;
+}
+.docin{
+    padding: 15px 0px 0px 5px !important;
 }

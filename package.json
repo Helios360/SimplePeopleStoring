@@ -18,6 +18,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "formidable": "^3.5.4",
     "mysql2": "^3.14.1",
     "node": "^22.17.0",
     "node-bin-setup": "^1.1.4"

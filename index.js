@@ -42,6 +42,30 @@ const server = http.createServer((req, res) => {
       res.setHeader('Content-Type', 'text/html');
       res.end(data);
     });
+  } else if (req.url === '/register') {
+    // Serve register.html
+    fs.readFile(path.join(__dirname, 'register.html'), 'utf8', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end('Internal Server Error');
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(data);
+    });
+  } else if (req.url === '/signin') {
+    // Serve register.html
+    fs.readFile(path.join(__dirname, 'signin.html'), 'utf8', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end('Internal Server Error');
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(data);
+    });
   } else if (req.url === '/api/data') {
     db.query("SELECT * FROM test", (error, result) => {
       if (error){
@@ -141,10 +165,59 @@ const server = http.createServer((req, res) => {
             res.end('Bad Request');
         }
     });
+  } else if (req.url === '/submit-form' && req.method === 'POST') {
+    const formidable = require('formidable');
+    const uploadDir = path.join(__dirname, 'uploads');
+
+    // Make sure uploads folder exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+
+    const form = new formidable.IncomingForm();
+    form.uploadDir = uploadDir;
+    form.keepExtensions = true;
+    form.maxFileSize = 10 * 1024 * 1024; // 10 MB
+
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end('Form parsing error');
+        return;
+      }
+
+      const {
+        name, fname, email, tel, addr, city,
+        postal, birth, agree
+      } = fields;
+
+      const cvFile = files.cv?.filepath;
+      const idDocFile = files.id_doc?.filepath;
+
+      const sql = `INSERT INTO form_submissions
+        (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, agree)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const values = [
+        name, fname, email, tel, addr, city, postal, birth,
+        cvFile, idDocFile, agree ? 1 : 0
+      ];
+
+      db.query(sql, values, (err, result) => {
+        if (err) {
+          res.statusCode = 500;
+          res.end('Database Error'+err);
+          return;
+        }
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        res.end();
+      });
+    });
   } else {
-	res.statusCode = 404;
-	res.setHeader('Content-Type', 'application/json');
-	res.end(JSON.stringify({ error: 'Not Found' }));  }
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Not Found' }));  }
   });
 
 // Make the server listen on the defined port and hostname

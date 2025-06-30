@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ETAI, un outil collaboratif pour la gestion des ressources, des tâches et des statistiques d'entreprise.">
+    <meta name="keywords" content="Cloud privé, collaboration, gestion des documents, productivité, entreprise, ETAI">
+    <meta name="author" content="Treguier Elias">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Cloud-testing</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+
+    <meta property="og:title" content="Cloud-testing">
+    <meta property="og:description" content="Détails du projet cloud-testing : Cloud privé, collaboration, et gestion efficace des ressources.">
+    <meta property="og:image" content="assets/preview.png">
+    <meta property="og:type" content="website">
+
+</head>
+<body>
+    <header>
+        <a><svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.589 21.659c-3.873 1.038-8.517-.545-10.98-3.632a1 1 0 0 1 .751-1.623c3.984-.118 6.662-1.485 8.17-4.098 1.51-2.613 1.354-5.616-.535-9.125a1 1 0 0 1 1.03-1.463c3.904.59 7.597 3.82 8.635 7.694 1.43 5.334-1.737 10.818-7.071 12.247" fill="#000"/></svg></a>
+    </header>
+    <main>
+        <img src="sources/LogoBleuOmbre-edited.png" alt="Cloud-Campus">
+        <form action="/submit-form" method="POST" enctype="multipart/form-data" class="form">
+            <div>
+                <div>
+                    <label for="name">Nom</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="first-name">Prénom</label>
+                    <input type="text" id="fname" name="fname" required>
+                </div>
+                <div>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="tel">Téléphone</label>
+                    <input type="tel" id="tel" name="tel" required>
+                </div>
+                <div>
+                    <label for="adresse">Adresse</label>
+                    <input type="text" id="addr" name="addr" required>
+                </div>
+                <div>
+                    <label for="city">Ville/Village</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                <div>
+                    <label for="postal">Code Postal</label>
+                    <input type="text" id="postal" name="postal" pattern="[A-Za-z0-9\s\-]{3,10}" required>
+                </div>
+                <div>
+                    <label for="birth">Date de naissance</label>
+                    <input type="date" id="birth" name="birth" required>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <ul class="form2">
+                    <p>Documents :</p>
+                    <li>
+                        <label for="cv">CV</label>
+                        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required class="docin">
+                    </li>
+                    <li>
+                        <label for="id_doc">Pièce d'identité</label>
+                        <input type="file" id="id_doc" name="id_doc" accept=".pdf,.jpg,.png" required class="docin">
+                    </li>
+                </ul>
+                <div class="checkbox">
+                    <label for="agree">Je reconnais avoir lu et compris les conditions d’utilisations de Cloud Testing</label>
+                    <input type="checkbox" id="agree" name="agree" required>                
+                </div>
+                <button type="submit" onclick="changeBox(send)" id="send">Envoyer</button>
+                    
+            </div>
+        </form>
+    </main>
+</body>
+<script src="scripts/Form.js"></script>
+</html>
