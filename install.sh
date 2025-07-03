@@ -33,17 +33,19 @@ CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
 USE \`$DB_NAME\`;
 CREATE TABLE IF NOT EXISTS Candidats (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100),
-    prenom VARCHAR(100),
+    name VARCHAR(100),
+    fname VARCHAR(100),
     email VARCHAR(150) UNIQUE,
-    numero VARCHAR(20),
-    adresse TEXT,
-    ville VARCHAR(100),
-    code_postal VARCHAR(20),
-    date_naissance DATE,
-    cv_path VARCHAR(255),
-    piece_identite_path VARCHAR(255),
-    conditions_acceptees BOOLEAN DEFAULT FALSE,
+    tel VARCHAR(20),
+    addr TEXT,
+    city VARCHAR(100),
+    postal VARCHAR(20),
+    birth DATE,
+    cv VARCHAR(255),
+    id_doc VARCHAR(255),
+    user_id VARCHAR(100),
+    password VARCHAR(100),
+    agree BOOLEAN DEFAULT FALSE,
     date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 EOF

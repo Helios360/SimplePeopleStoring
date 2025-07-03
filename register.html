@@ -25,7 +25,7 @@
     <main>
         <img src="sources/LogoBleuOmbre-edited.png" alt="Cloud-Campus">
         <form action="/submit-form" method="POST" enctype="multipart/form-data" class="form">
-            <div>
+            <div style="display:flex; justify-content: space-around;">
                 <div>
                     <label for="name">Nom</label>
                     <input type="text" id="name" name="name" required>
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <hr>
-            <div>
+            <div style="display:flex; justify-content: space-around;">
                 <ul class="form2">
                     <p>Documents :</p>
                     <li>
@@ -72,12 +72,23 @@
                         <input type="file" id="id_doc" name="id_doc" accept=".pdf,.jpg,.png" required class="docin">
                     </li>
                 </ul>
+                <div>
+                    <label for="id">Identifiant</label>
+                    <input type="text" id="id" name="id" required>
+                </div>
+                <div>
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div>
+                    <label for="confirm">Confirmer le mot de passe</label>
+                    <input type="password" id="confirm" name="confirm" required>
+                </div>
                 <div class="checkbox">
                     <label for="agree">Je reconnais avoir lu et compris les conditions d’utilisations de Cloud Testing</label>
                     <input type="checkbox" id="agree" name="agree" required>                
                 </div>
-                <button type="submit" onclick="changeBox(send)" id="send">Envoyer</button>
-                    
+                <button type="submit" id="send">Envoyer</button>
             </div>
         </form>
     </main>

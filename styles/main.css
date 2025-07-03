@@ -1,6 +1,7 @@
 :root{
     --primary:#F1F4F4;
     --secondary:#000000;
+    --tertiary:#1c1c68;
 }
 html{
     background-color: var(--primary);
@@ -41,7 +42,7 @@ main{
     border-radius: 8px;
     border: 2px solid var(--secondary);
     width:315px;
-    height:43px;
+    height:40px;
     background-color: transparent;
 }
 .form label{
@@ -63,7 +64,6 @@ main{
 .form2 > li > label{
     display: flex;
     flex-direction: column;
-    margin-bottom: 5px!important;
 }
 .checkbox{
     width: 330px;
@@ -81,10 +81,17 @@ button{
     border-radius: 8px;
     border: 2px solid var(--secondary);
     background-color: transparent;
+    transition: all 0.2s ease-out;
 }
 button:hover{
-    background-color: var(--primary);
-
+    background-color: var(--tertiary);
+    color:var(--primary);
+    border: none;
+}
+button:active{
+    background-color: var(--secondary);
+    color: var(--primary);
+    border: none;
 }
 .signin{
     gap: 20px !important;
@@ -94,6 +101,7 @@ button:hover{
 }
 .signin button{
     margin-top: 60px;
+    margin-bottom: 0;
 }
 footer{
     position : absolute;

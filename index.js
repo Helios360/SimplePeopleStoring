@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2');
+const bcrypt = require('bcrypt');
 
 const publiChat = "test";
 // Define the hostname and port
@@ -14,7 +15,6 @@ const db = mysql.createConnection({
 	password:'123',
 	database:'test',
 });
-//finish here
 db.connect((err) => {
   if (err) {
     console.error('Error connecting to the database:', err.stack);
@@ -22,7 +22,6 @@ db.connect((err) => {
   }
   console.log('Connected to the database as id ' + db.threadId);
 });
-
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
@@ -188,15 +187,70 @@ const server = http.createServer((req, res) => {
 
       const {
         name, fname, email, tel, addr, city,
+        postal, birth, id, password, agree
+      } = fields;
+      
+      const cv = Array.isArray(files.cv) && files.cv[0]?.filepath
+        ? path.basename(files.cv[0].filepath)
+        : null;
+
+      const id_doc = Array.isArray(files.id_doc) && files.id_doc[0]?.filepath
+        ? path.basename(files.id_doc[0].filepath)
+        : null;
+
+      const saltRounds = 10;
+      const pwd = bcrypt.hashSync(String(password), saltRounds);
+
+      const sql = `INSERT INTO Candidats
+        (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, user_id, password, agree)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const values = [
+        name, fname, email, tel, addr, city, postal, birth,
+        cv, id_doc, id, pwd, agree ? 1 : 0
+      ];
+
+      db.query(sql, values, (err, result) => {
+        if (err) {
+          res.statusCode = 500;
+          res.end('Database Error'+err);
+          return;
+        }
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        res.end();
+      });
+    });
+  } else if (req.url === '/login' && req.method === 'POST') {
+    const formidable = require('formidable');
+    const uploadDir = path.join(__dirname, 'uploads');
+
+    // Make sure uploads folder exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+
+    const form = new formidable.IncomingForm();
+    form.uploadDir = uploadDir;
+    form.keepExtensions = true;
+    form.maxFileSize = 10 * 1024 * 1024; // 10 MB
+
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end('Form parsing error');
+        return;
+      }
+
+      const {
+        name, fname, email, tel, addr, city,
         postal, birth, agree
       } = fields;
 
       const cvFile = files.cv?.filepath;
       const idDocFile = files.id_doc?.filepath;
 
-      const sql = `INSERT INTO form_submissions
-        (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, agree)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const sql = `SELECT `;
 
       const values = [
         name, fname, email, tel, addr, city, postal, birth,
