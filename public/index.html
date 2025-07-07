@@ -24,19 +24,16 @@
     </header>
     <main>
         <img src="sources/LogoBleuOmbre-edited.png" alt="Cloud-Campus">
-        <form action="scripts/Form.js" method="GET" class="form">
+        <form action="/login" method="POST" class="form" id="sub">
             <div class="signin">
-                <label for="name"></label>
-                <input type="text" id="name" name="name" placeholder="Identifiant . . ." required>
-                <label for="name"></label>
-                <input type="text" id="name" name="name" placeholder="Mot de passe . . ." required>
-                <button type="submit">Envoyer</button>
+                <label for="email"></label>
+                <input type="email" id="email" name="email" placeholder="Email . . ." required>
+                <label for="password"></label>
+                <input type="password" id="password" name="password" placeholder="Mot de passe . . ." required>
+                <button type="submit" id="sub">Envoyer</button>
             </div>
         </form>
     </main>
-    <footer>
-        <a >Mentions légales</a>
-        <a>| Condutions générales d'utilisation</a>
-    </footer>
 </body>
+<script src="scripts/login.js"></script>
 </html>

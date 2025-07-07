@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ETAI, un outil collaboratif pour la gestion des ressources, des tâches et des statistiques d'entreprise.">
+    <meta name="keywords" content="Cloud privé, collaboration, gestion des documents, productivité, entreprise, ETAI">
+    <meta name="author" content="Treguier Elias">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Cloud-testing</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+
+    <meta property="og:title" content="Cloud-testing">
+    <meta property="og:description" content="Détails du projet cloud-testing : Cloud privé, collaboration, et gestion efficace des ressources.">
+    <meta property="og:image" content="assets/preview.png">
+    <meta property="og:type" content="website">
+
+</head>
+<body>
+  <header>
+    <img src="/sources/LogoBleuOmbre-edited.png" height="80px">
+    <a><svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.589 21.659c-3.873 1.038-8.517-.545-10.98-3.632a1 1 0 0 1 .751-1.623c3.984-.118 6.662-1.485 8.17-4.098 1.51-2.613 1.354-5.616-.535-9.125a1 1 0 0 1 1.03-1.463c3.904.59 7.597 3.82 8.635 7.694 1.43 5.334-1.737 10.818-7.071 12.247" fill="#000"/></svg></a>
+  </header>
+  <main>
+    <div class="contain">
+      <div class="info-view">
+        <h1 id="NomPrenom"></h1>
+        <ul>
+                      <svg width="10" height="10" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path class="clr-i-outline clr-i-outline-path-1" d="M32 6H4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2m-1.54 22H5.66l7-7.24-1.44-1.39L4 26.84V9.52l12.43 12.37a2 2 0 0 0 2.82 0L32 9.21v17.5l-7.36-7.36-1.41 1.41ZM5.31 8h25.07L17.84 20.47Z"/><path fill="none" d="M0 0h36v36H0z"/></svg>
+<li id="email">Email : </li>
+          <li id="tel">Tél : </li>
+          <li id="birthday">Né le : </li>
+          <li id="city">Ville : </li>
+          <li id="addr">Adresse : </li>
+        </ul>
+        <div class="plus">
+          <div>
+            <p>Tags</p>
+            <div id="tags">
+
+            </div>
+          </div>
+          <div>
+            <p>Compétences</p>
+            <div id="skills">
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-view">
+        <div class="docs">
+          <a id="cv">CV</a>
+          <a id="PI">PI</a>
+          <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 64 64" xml:space="preserve"><path d="M32 50V14M14 32h36" fill="none" stroke="#000" stroke-width="3" stroke-miterlimit="10"/></svg>
+        </div>
+        <iframe id="cv-frame" src=""></iframe>
+      </div>
+    </div>
+  </main>
+<script>
+  fetch('/api/profile', {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      const user = data.user;
+
+      // Remplir les infos
+      document.getElementById('NomPrenom').textContent = user.name + " " + user.fname;
+      document.getElementById('email').textContent += user.email;
+      document.getElementById('tel').textContent += user.tel;
+
+      const dateOnly = user.birth.split("T")[0].replace(/-/g, "/");
+      const birthDate = new Date(user.birth);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      document.getElementById('birthday').textContent = "Né le : " + dateOnly + " | " + age + " ans";
+      document.getElementById('city').textContent += user.city + ", " + user.postal;
+      document.getElementById('addr').textContent += user.addr;
+
+      // Télécharger le CV avec token
+      const cvUrl = '/uploads/' + user.cv + ".pdf";
+      fetch(cvUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Accès refusé au CV");
+        return response.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        document.getElementById('cv-frame').src = url;
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Impossible de charger le CV.");
+      });
+
+    } else {
+      alert('Non autorisé');
+      window.location.href = '/signin';
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Erreur lors de la récupération du profil");
+    window.location.href = '/signin';
+  });
+</script>
+</body>
+</html>
