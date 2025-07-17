@@ -5,9 +5,12 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const formidable = require('formidable');
+const { formidable } = require('formidable');
+require('dotenv').config();
+
 
 const authMiddleware = require('./controllers/authControl');
+const adminOnly = require('./controllers/adminOnly');
 const app = express();
 
 const port = 8080;
@@ -20,17 +23,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // === Static Files ===
-app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
-app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
-app.use('/sources', express.static(path.join(__dirname, 'public', 'sources')));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // === MySQL ===
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '123',
-  database: 'Main',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
 db.connect(err => {
   if (err) {
     console.error('DB Error:', err.stack);
@@ -43,9 +46,8 @@ db.connect(err => {
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
 app.get('/register', (_, res) => res.sendFile(path.join(__dirname, 'public/register.html')));
 app.get('/signin', (_, res) => res.sendFile(path.join(__dirname, 'public/signin.html')));
-app.get('/profile', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'profile.html'));
-});
+app.get('/profile', authMiddleware, (req, res) => {res.sendFile(path.join(__dirname, 'views', 'profile.html'));});
+app.get('/admin-panel', authMiddleware, adminOnly, (req, res) => {res.sendFile(path.join(__dirname,'views', 'admin.html'));});
 // === /login Route ===
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -59,7 +61,7 @@ app.post('/login', (req, res) => {
       if (err) return res.status(500).send('Password error');
       if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid password' });
 
-      const token = jwt.sign({email: user.email, name: user.name }, SECRET, { expiresIn: '2h' });
+      const token = jwt.sign({email: user.email, name: user.name, is_admin: user.is_admin }, SECRET, { expiresIn: '2h' });
       res.json({ success: true, token, user: {email: user.email, name: user.name} });
     });
   });
@@ -68,12 +70,18 @@ app.post('/login', (req, res) => {
 // === /api/profile (Protected Route) ===
 app.get('/api/profile', authMiddleware, (req, res) => {
   const userId = req.user.email;
-
   db.query('SELECT * FROM Candidats WHERE email = ?', [userId], (err, results) => {
     if (err) return res.status(500).json({ success: false, message: 'DB error' });
     if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
-
     res.json({ success: true, user: results[0] });
+  });
+});
+// === Admin full sql api ===
+app.get('/api/admin-panel', authMiddleware, adminOnly, (req, res) => {
+  db.query('SELECT * FROM Candidats', (err, results)=>{
+    if (err) return res.status(500).json({ success: false, message: 'DB error' });
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'Result lenght === 0'});
+    res.json({ success: true, users: results});
   });
 });
 
@@ -89,6 +97,27 @@ app.get('/uploads/:filename', authMiddleware, (req, res) => {
 
     res.sendFile(filePath);
   });
+});
+// === from profile to db ===
+app.post('/api/update-tags', authMiddleware, (req, res) => {
+  const userEmail = req.user.email;
+  const { tags, skills } = req.body;
+  if (!Array.isArray(tags) || !Array.isArray(skills)) {
+    return res.status(400).json({ success: false, message: 'Must be an array' });
+  }
+  const tagsJSON = JSON.stringify(tags);
+  const skillsJSON = JSON.stringify(skills);
+  db.query(
+    'UPDATE Candidats SET tags = ?, skills = ? WHERE email = ?',
+    [tagsJSON, skillsJSON, userEmail],
+    (err, result) => {
+      if (err) {
+        console.error('DB update error:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+      res.json({ success: true, message: 'Tags updated successfully' });
+    }
+  );
 });
 
 // === Register route ===
@@ -115,7 +144,7 @@ app.post('/submit-form', (req, res) => {
 
     const {
       name, fname, email, tel, addr, city,
-      postal, birth, id, password, agree
+      postal, birth, id, password, agree,
     } = fields;
 
     const getFileName = (file) => {
@@ -131,13 +160,14 @@ app.post('/submit-form', (req, res) => {
 
     const sql = `
       INSERT INTO Candidats
-        (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, user_id, password, agree)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, password, agree)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+
 
     const values = [
       name, fname, email, tel, addr, city, postal, birth,
-      cv, id_doc, id, hashedPassword, agree ? 1 : 0
+      cv, id_doc, hashedPassword, agree ? 1 : 0
     ];
 
     db.query(sql, values, (err, result) => {
@@ -146,7 +176,7 @@ app.post('/submit-form', (req, res) => {
         return res.status(500).send('Database Error');
       }
 
-      res.redirect('/');
+      res.redirect('/signin');
     });
   });
 });

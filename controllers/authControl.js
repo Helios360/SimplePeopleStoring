@@ -1,18 +1,21 @@
 const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-const SECRET = 'your-secret-key'; // to put in .env
+function authMiddleware(req, res, next) {
+  const cookieHeader = req.headers.cookie || '';
+  const match = cookieHeader.match(/token=([^;]+)/);
 
-module.exports = function (req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  if (!match) return res.status(401).json({ message: 'Missing token' });
 
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Token missing' });
-  }
+  const token = match[1];
+  if (!token) return res.status(401).json({ message: 'Invalid token format' });
 
-  jwt.verify(token, SECRET, (err, user) => {
-    if (err) return res.status(403).json({ success: false, message: 'Invalid token' });
-    req.user = user;
+  jwt.verify(token, SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ message: 'Invalid token' });
+
+    req.user = decoded; // { email, name, is_admin }
     next();
   });
-};
+}
+
+module.exports = authMiddleware;

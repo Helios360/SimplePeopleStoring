@@ -23,8 +23,8 @@ npm install
 # 4. Ask user for MySQL credentials
 read -p "🗝️  Enter MySQL root password: " -s MYSQL_PASSWORD
 echo
-read -p "📂 Enter database name (default: test): " DB_NAME
-DB_NAME=${DB_NAME:-test}
+read -p "📂 Enter database name (default: Main): " DB_NAME
+DB_NAME=${DB_NAME:-Main}
 
 # 5. Create database and table if needed
 echo "🧱 Setting up MySQL database and table..."
@@ -43,10 +43,13 @@ CREATE TABLE IF NOT EXISTS Candidats (
     birth DATE,
     cv VARCHAR(255),
     id_doc VARCHAR(255),
-    user_id VARCHAR(100),
     password VARCHAR(100),
     agree BOOLEAN DEFAULT FALSE,
-    date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tags JSON,
+    skills JSON,
+    status TINYINT,
+    is_admin TINYINT
 );
 EOF
 
@@ -54,6 +57,7 @@ if [ $? -ne 0 ]; then
   echo "❌ Failed to set up database. Check your MySQL credentials and try again."
   exit 1
 fi
+echo "✅ MySQL database '$DB_NAME' and table 'Candidats' are ready."
 
 # 6. Create .env file (optional – for future config)
 echo "🌍 Creating .env file..."

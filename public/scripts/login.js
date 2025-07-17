@@ -15,8 +15,7 @@ document.getElementById('sub').addEventListener('submit', async (e) => {
   const data = await response.json();
 
   if (data.success) {
-    localStorage.setItem('token', data.token);
-
+    document.cookie = `token=${data.token}; path=/; SameSite=Strict`; // rajouter "Secure;" pour https
     window.location.href = '/profile';
   } else {
     alert(data.message || 'Login failed');

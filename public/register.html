@@ -16,15 +16,14 @@
     <meta property="og:description" content="Détails du projet cloud-testing : Cloud privé, collaboration, et gestion efficace des ressources.">
     <meta property="og:image" content="assets/preview.png">
     <meta property="og:type" content="website">
-
 </head>
 <body>
     <header>
-        <a><svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.589 21.659c-3.873 1.038-8.517-.545-10.98-3.632a1 1 0 0 1 .751-1.623c3.984-.118 6.662-1.485 8.17-4.098 1.51-2.613 1.354-5.616-.535-9.125a1 1 0 0 1 1.03-1.463c3.904.59 7.597 3.82 8.635 7.694 1.43 5.334-1.737 10.818-7.071 12.247" fill="#000"/></svg></a>
+        <a id="toggle-theme"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.589 21.659c-3.873 1.038-8.517-.545-10.98-3.632a1 1 0 0 1 .751-1.623c3.984-.118 6.662-1.485 8.17-4.098 1.51-2.613 1.354-5.616-.535-9.125a1 1 0 0 1 1.03-1.463c3.904.59 7.597 3.82 8.635 7.694 1.43 5.334-1.737 10.818-7.071 12.247" fill="var(--secondary)"/></svg></a>
     </header>
     <main>
         <img src="sources/LogoBleuOmbre-edited.png" alt="Cloud-Campus">
-        <form action="/register" method="POST" class="form">
+        <form action="/submit-form" method="POST" enctype="multipart/form-data" class="form">
             <div style="display:flex; justify-content: space-around;">
                 <div>
                     <label for="name">Nom</label>
@@ -65,17 +64,13 @@
                     <p>Documents :</p>
                     <li>
                         <label for="cv">CV</label>
-                        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required class="docin">
+                        <input type="file" id="cv" name="cv" accept=".pdf" required class="docin">
                     </li>
                     <li>
                         <label for="id_doc">Pièce d'identité</label>
-                        <input type="file" id="id_doc" name="id_doc" accept=".pdf,.jpg,.png" required class="docin">
+                        <input type="file" id="id_doc" name="id_doc" accept=".png" required class="docin">
                     </li>
                 </ul>
-                <div>
-                    <label for="id">Identifiant</label>
-                    <input type="text" id="id" name="id" required>
-                </div>
                 <div>
                     <label for="password">Mot de passe</label>
                     <input type="password" id="password" name="password" required>
@@ -93,5 +88,6 @@
         </form>
     </main>
 </body>
+<script src="/scripts/Main.js"></script>
 <script src="scripts/Form.js"></script>
 </html>
