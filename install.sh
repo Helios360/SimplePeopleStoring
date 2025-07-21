@@ -1,33 +1,33 @@
 #!/bin/bash
 
-echo "🔧 Starting installation..."
+echo ":D Starting installation..."
 
 # 1. Check if Node.js is installed
 if ! command -v node &> /dev/null
 then
-    echo "❌ Node.js is not installed. Please install Node.js first."
+    echo ":( Node.js is not installed. Please install Node.js first."
     exit 1
 fi
 
 # 2. Check if MySQL is installed
 if ! command -v mysql &> /dev/null
 then
-    echo "❌ MySQL is not installed. Please install MySQL first."
+    echo ":( MySQL is not installed. Please install MySQL first."
     exit 1
 fi
 
 # 3. Install npm dependencies
-echo "📦 Installing dependencies..."
+echo ":3 Installing dependencies..."
 npm install
 
 # 4. Ask user for MySQL credentials
-read -p "🗝️  Enter MySQL root password: " -s MYSQL_PASSWORD
+read -p "OwO Enter MySQL root password: " -s MYSQL_PASSWORD
 echo
-read -p "📂 Enter database name (default: Main): " DB_NAME
+read -p "UwU Enter database name (default: Main): " DB_NAME
 DB_NAME=${DB_NAME:-Main}
 
 # 5. Create database and table if needed
-echo "🧱 Setting up MySQL database and table..."
+echo ":3 Setting up MySQL database and table..."
 mysql -u root -p$MYSQL_PASSWORD <<EOF
 CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
 USE \`$DB_NAME\`;
@@ -54,13 +54,13 @@ CREATE TABLE IF NOT EXISTS Candidats (
 EOF
 
 if [ $? -ne 0 ]; then
-  echo "❌ Failed to set up database. Check your MySQL credentials and try again."
+  echo ":( Failed to set up database. Check your MySQL credentials and try again."
   exit 1
 fi
-echo "✅ MySQL database '$DB_NAME' and table 'Candidats' are ready."
+echo ":D MySQL database '$DB_NAME' and table 'Candidats' are ready."
 
 # 6. Create .env file (optional – for future config)
-echo "🌍 Creating .env file..."
+echo "OwO Creating .env file..."
 cat <<EOT > .env
 DB_HOST=localhost
 DB_USER=root
@@ -70,5 +70,5 @@ PORT=8080
 EOT
 
 # 7. Start the server
-echo "🚀 Starting the server..."
+echo "O.O Starting the server..."
 node index.js
