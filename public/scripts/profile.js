@@ -19,150 +19,14 @@ fetch(fetchUrl, {
 })
 .then(res => res.json())
 .then(data => {
-  if (!data.success) throw new Error(data.message);
-
-  const user = data.user || data.student;
-
-  // Fill form fields with user data
-  document.getElementById('name').value = user.name;
-  document.getElementById('fname').value = user.fname;
-  document.getElementById('tel').value = user.tel;
-  // ... populate other fields
-})
-.catch(err => {
-  alert('Failed to load profile: ' + err.message);
-});
-
-const skillTypes = {
-  // Languages
-  'C': 'language',
-  'C++': 'language',
-  'Java': 'language',
-  'JavaScript': 'language',
-  'TypeScript': 'language',
-  'Python': 'language',
-  'Ruby': 'language',
-  'Go': 'language',
-  'Rust': 'language',
-  'PHP': 'language',
-  'Swift': 'language',
-  'Kotlin': 'language',
-  'Scala': 'language',
-  'Dart': 'language',
-  'R': 'language',
-  'Bash': 'language',
-  'Perl': 'language',
-
-  // Frontend
-  'HTML': 'frontend',
-  'CSS': 'frontend',
-  'React': 'frontend',
-  'Vue.js': 'frontend',
-  'Angular': 'frontend',
-  'Svelte': 'frontend',
-  'Next.js': 'frontend',
-  'Gatsby': 'frontend',
-  'Tailwind CSS': 'frontend',
-  'Bootstrap': 'frontend',
-  'jQuery': 'frontend',
-
-  // Backend
-  'Node.js': 'backend',
-  'Express.js': 'backend',
-  'Django': 'backend',
-  'Flask': 'backend',
-  'Ruby on Rails': 'backend',
-  'Spring Boot': 'backend',
-  'Laravel': 'backend',
-  'ASP.NET': 'backend',
-  'Koa.js': 'backend',
-  'FastAPI': 'backend',
-  'NestJS': 'backend',
-
-  // Databases
-  'PostgreSQL': 'database',
-  'MySQL': 'database',
-  'SQLite': 'database',
-  'MongoDB': 'database',
-  'Redis': 'database',
-  'Firebase': 'database',
-  'Cassandra': 'database',
-  'MariaDB': 'database',
-  'OracleDB': 'database',
-  'DynamoDB': 'database',
-
-  // DevOps / Tools
-  'Docker': 'devops',
-  'Kubernetes': 'devops',
-  'Git': 'devops',
-  'GitHub Actions': 'devops',
-  'Jenkins': 'devops',
-  'Terraform': 'devops',
-  'Ansible': 'devops',
-  'Nginx': 'devops',
-  'Apache': 'devops',
-  'AWS': 'devops',
-  'Azure': 'devops',
-  'GCP': 'devops',
-  'Linux': 'devops',
-  'CI/CD': 'devops',
-
-  // Testing
-  'Jest': 'testing',
-  'Mocha': 'testing',
-  'Chai': 'testing',
-  'JUnit': 'testing',
-  'Cypress': 'testing',
-  'Selenium': 'testing',
-  'PyTest': 'testing',
-  'RSpec': 'testing',
-
-  // Mobile
-  'React Native': 'mobile',
-  'Flutter': 'mobile',
-  'SwiftUI': 'mobile',
-  'Xamarin': 'mobile',
-
-  // Other
-  'GraphQL': 'other',
-  'REST API': 'other',
-  'Webpack': 'other',
-  'Vite': 'other',
-  'ESLint': 'other',
-  'Prettier': 'other',
-  'Storybook': 'other'
-};
-
-
-const typeColors = {
-  language: '#43a4b1ff',
-  frontend: '#66bd6dff',
-  backend: '#f07ee8ff',
-  database: '#ee6060ff',
-  devops: '#f3b63aff',
-  testing: '#9d8dfcff',
-  mobile: '#50c5b7ff',
-  other: '#b0bec5ff',
-  unknown: 'transparent'
-};
-
-
-fetch('/api/profile', {
-    method: 'GET',
-    headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-    }
-})
-.then(res => res.json())
-.then(data => {
 if (data.success) {
-    const user = data.user;
+    const user = data.user || data.student;
     // Remplir les infos
     document.getElementById('name').value = user.name;
     document.getElementById('fname').value = user.fname;
     document.getElementById('email').value = user.email;
     document.getElementById('tel').value = user.tel;
-
+    document.getElementById('status').value = user.status;
     const dateOnly = user.birth.split("T")[0].replace(/-/g, "/");
     const birthDate = new Date(user.birth);
     const today = new Date();
@@ -173,6 +37,7 @@ if (data.success) {
     }
 
     document.getElementById('birth').value = user.birth.split("T")[0];
+    document.getElementById('age').textContent = age+ ' ans ';
     document.getElementById('city').value = user.city;
     document.getElementById('postal').value = user.postal;
 
@@ -189,7 +54,8 @@ if (data.success) {
             city: document.getElementById('city').value,
             postal: document.getElementById('postal').value,
             tags: currentTags,
-            skills: currentSkills
+            skills: currentSkills,
+            status: document.getElementById('status').value
         };
 
         const endpoint = targetEmail
@@ -215,7 +81,7 @@ if (data.success) {
         });
     });
 
-    const cvUrl = '/uploads/' + user.cv;
+    const cvUrl = `${user.cv}`;
         fetch(cvUrl, {
             method: 'GET',
             headers: {
@@ -239,7 +105,7 @@ if (data.success) {
         pi.style.backgroundColor = "var(--primary)";
         pi.style.color = "var(--secondary)";
     cv.addEventListener('click', function (){ // charger le cv
-        const cvUrl = '/uploads/' + user.cv;
+        const cvUrl = `${user.cv}`;
         fetch(cvUrl, {
             method: 'GET',
             headers: {
@@ -265,7 +131,7 @@ if (data.success) {
     });
     
     pi.addEventListener('click', function (){ // charger la pi
-        const cvUrl = '/uploads/' + user.id_doc;
+        const cvUrl = `${user.id_doc}`;
         fetch(cvUrl, {
             method: 'GET',
             headers: {
@@ -300,8 +166,16 @@ if (data.success) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                name: document.getElementById('name').value,
+                fname: document.getElementById('fname').value,
+                tel: document.getElementById('tel').value,
+                birth: document.getElementById('birth').value,
+                addr: document.getElementById('addr').value,
+                city: document.getElementById('city').value,
+                postal: document.getElementById('postal').value,
                 tags: currentTags,
-                skills: currentSkills
+                skills: currentSkills,
+                status: document.getElementById('status').value
             })
         })
         .then(res => res.json())
@@ -419,3 +293,116 @@ if (data.success) {
     alert("Erreur lors de la récupération du profil");
     window.location.href = '/signin';
 });
+
+const skillTypes = {
+  // Languages
+  'C': 'language',
+  'C++': 'language',
+  'Java': 'language',
+  'JavaScript': 'language',
+  'TypeScript': 'language',
+  'Python': 'language',
+  'Ruby': 'language',
+  'Go': 'language',
+  'Rust': 'language',
+  'PHP': 'language',
+  'Swift': 'language',
+  'Kotlin': 'language',
+  'Scala': 'language',
+  'Dart': 'language',
+  'R': 'language',
+  'Bash': 'language',
+  'Perl': 'language',
+
+  // Frontend
+  'HTML': 'frontend',
+  'CSS': 'frontend',
+  'React': 'frontend',
+  'Vue.js': 'frontend',
+  'Angular': 'frontend',
+  'Svelte': 'frontend',
+  'Next.js': 'frontend',
+  'Gatsby': 'frontend',
+  'Tailwind CSS': 'frontend',
+  'Bootstrap': 'frontend',
+  'jQuery': 'frontend',
+
+  // Backend
+  'Node.js': 'backend',
+  'Express.js': 'backend',
+  'Django': 'backend',
+  'Flask': 'backend',
+  'Ruby on Rails': 'backend',
+  'Spring Boot': 'backend',
+  'Laravel': 'backend',
+  'ASP.NET': 'backend',
+  'Koa.js': 'backend',
+  'FastAPI': 'backend',
+  'NestJS': 'backend',
+
+  // Databases
+  'PostgreSQL': 'database',
+  'MySQL': 'database',
+  'SQLite': 'database',
+  'MongoDB': 'database',
+  'Redis': 'database',
+  'Firebase': 'database',
+  'Cassandra': 'database',
+  'MariaDB': 'database',
+  'OracleDB': 'database',
+  'DynamoDB': 'database',
+
+  // DevOps / Tools
+  'Docker': 'devops',
+  'Kubernetes': 'devops',
+  'Git': 'devops',
+  'GitHub Actions': 'devops',
+  'Jenkins': 'devops',
+  'Terraform': 'devops',
+  'Ansible': 'devops',
+  'Nginx': 'devops',
+  'Apache': 'devops',
+  'AWS': 'devops',
+  'Azure': 'devops',
+  'GCP': 'devops',
+  'Linux': 'devops',
+  'CI/CD': 'devops',
+
+  // Testing
+  'Jest': 'testing',
+  'Mocha': 'testing',
+  'Chai': 'testing',
+  'JUnit': 'testing',
+  'Cypress': 'testing',
+  'Selenium': 'testing',
+  'PyTest': 'testing',
+  'RSpec': 'testing',
+
+  // Mobile
+  'React Native': 'mobile',
+  'Flutter': 'mobile',
+  'SwiftUI': 'mobile',
+  'Xamarin': 'mobile',
+
+  // Other
+  'GraphQL': 'other',
+  'REST API': 'other',
+  'Webpack': 'other',
+  'Vite': 'other',
+  'ESLint': 'other',
+  'Prettier': 'other',
+  'Storybook': 'other'
+};
+
+
+const typeColors = {
+  language: '#43a4b1ff',
+  frontend: '#66bd6dff',
+  backend: '#f07ee8ff',
+  database: '#ee6060ff',
+  devops: '#f3b63aff',
+  testing: '#9d8dfcff',
+  mobile: '#50c5b7ff',
+  other: '#b0bec5ff',
+  unknown: 'transparent'
+};

@@ -86,14 +86,34 @@ app.get('/api/admin-panel', authMiddleware, adminOnly, (req, res) => {
   });
 });
 // === test route ===
-app.get('/api', authMiddleware, (req, res) => {
-    
+app.get('/api', authMiddleware, (req, res) => {});
+// === Single user profile (admin) ===
+app.get('/api/user-profile/:id', authMiddleware, adminOnly, (req, res) => {
+  const userId = req.params.id;
+  db.query('SELECT * FROM Candidats WHERE id = ?', [userId], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'DB error' });
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user: results[0] });
+  });
 });
 
+// Only accessible by authenticated admins
+app.get('/api/admin/student/:email', authMiddleware, adminOnly, (req, res) => {
+  const email = decodeURIComponent(req.params.email);
+
+  db.query('SELECT * FROM Candidats WHERE email = ?', [email], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'DB error' });
+    if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+
+    res.json({ success: true, student: results[0] });
+  });
+});
+
+
 // === PDF access ===
-app.get('/uploads/:filename', authMiddleware, (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, 'uploads', filename);
+app.get('/uploads/:folder/:filename', authMiddleware, (req, res) => {
+  const { folder, filename } = req.params;
+  const filePath = path.join(__dirname, 'uploads', folder, filename);
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
@@ -104,39 +124,70 @@ app.get('/uploads/:filename', authMiddleware, (req, res) => {
   });
 });
 
+// === update students (admin) ===
+app.post('/api/admin/update-student', authMiddleware, adminOnly, (req, res) => {
+  const {
+    email, name, fname, tel, birth, addr, city, postal, tags, skills, status
+  } = req.body;
+
+  db.query(
+    'UPDATE Candidats SET name=?, fname=?, tel=?, birth=?, addr=?, city=?, postal=?, tags=?, skills=?, status=? WHERE email=?',
+    [name, fname, tel, birth, addr, city, postal, JSON.stringify(tags), JSON.stringify(skills), status, email],
+    (err, result) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      res.json({ success: true });
+    }
+  );
+});
+// === update status from list (admin) ===
+app.post('/api/admin/update-status', authMiddleware, adminOnly, (req, res) => {
+  const { id, status } = req.body;
+
+  db.query(
+    'UPDATE Candidats SET status = ? WHERE id = ?',
+    [status, id],
+    (err, result) => {
+      if (err) {
+        console.error('DB error on status update:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      res.json({ success: true });
+    }
+  );
+});
+
 // === from profile to db ===
 app.post('/api/update-tags', authMiddleware, (req, res) => {
   const userEmail = req.user.email;
-  const { tags, skills } = req.body;
+  const {name,fname,tel,birth,addr,city,postal,tags,skills,status} = req.body;
+
   if (!Array.isArray(tags) || !Array.isArray(skills)) {
-    return res.status(400).json({ success: false, message: 'Must be an array' });
+    return res.status(400).json({ success: false, message: 'Tags and skills must be arrays' });
   }
+
   const tagsJSON = JSON.stringify(tags);
   const skillsJSON = JSON.stringify(skills);
+
   db.query(
-    'UPDATE Candidats SET tags = ?, skills = ? WHERE email = ?',
-    [tagsJSON, skillsJSON, userEmail],
+    `UPDATE Candidats 
+     SET name = ?, fname = ?, tel = ?, birth = ?, addr = ?, city = ?, postal = ?, tags = ?, skills = ?, status=?
+     WHERE email = ?`,
+    [name, fname, tel, birth, addr, city, postal, tagsJSON, skillsJSON, status, userEmail],
     (err, result) => {
       if (err) {
         console.error('DB update error:', err);
         return res.status(500).json({ success: false, message: 'Database error' });
       }
-      res.json({ success: true, message: 'Tags updated successfully' });
+      res.json({ success: true, message: 'Profile updated successfully' });
     }
   );
 });
 
+
 // === Register route ===
 app.post('/submit-form', (req, res) => {
-  const uploadDir = path.join(__dirname, 'uploads');
-
-  // Ensure upload directory exists
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-
   const form = formidable({
-    uploadDir,
     keepExtensions: true,
     maxFileSize: 10 * 1024 * 1024, // 10MB
     multiples: true,
@@ -151,29 +202,49 @@ app.post('/submit-form', (req, res) => {
     const {
       name, fname, email, tel, addr, city,
       postal, birth, id, password, agree,
-    } = fields;
+    } = Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v[0]]));
 
-    const getFileName = (file) => {
+
+    // Generate a unique folder name (based on timestamp + email or UUID)
+    const userFolderName = `user_${Date.now()}_${email.replace(/[@.]/g, '_')}`;
+    const uploadDir = path.join(__dirname, 'uploads', userFolderName);
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Move files into that folder
+    const moveFile = (file) => {
       if (!file) return null;
-      return path.basename(file[0]?.filepath || '');
+      const oldPath = file[0].filepath;
+      const newName = file[0].newFilename;
+      const newPath = path.join(uploadDir, newName);
+
+      // Fix for cross-device error
+      fs.copyFileSync(oldPath, newPath);
+      fs.unlinkSync(oldPath);
+
+      return path.relative(__dirname, newPath);
     };
 
-    const cv = getFileName(files.cv);
-    const id_doc = getFileName(files.id_doc);
 
+    const cvPath = moveFile(files.cv);
+    const idDocPath = moveFile(files.id_doc);
+
+    // Hash password
     const saltRounds = 10;
     const hashedPassword = bcrypt.hashSync(String(password), saltRounds);
 
+    // Insert into DB
     const sql = `
       INSERT INTO Candidats
         (name, fname, email, tel, addr, city, postal, birth, cv, id_doc, password, agree)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-
     const values = [
       name, fname, email, tel, addr, city, postal, birth,
-      cv, id_doc, hashedPassword, agree ? 1 : 0
+      cvPath, idDocPath, hashedPassword, agree ? 1 : 0
     ];
 
     db.query(sql, values, (err, result) => {
@@ -186,6 +257,7 @@ app.post('/submit-form', (req, res) => {
     });
   });
 });
+
 
 // === Fallback route ===
 app.use((req, res) => {
