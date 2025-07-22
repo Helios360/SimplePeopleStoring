@@ -48,6 +48,8 @@ app.get('/register', (_, res) => res.sendFile(path.join(__dirname, 'public/regis
 app.get('/signin', (_, res) => res.sendFile(path.join(__dirname, 'public/signin.html')));
 app.get('/profile', authMiddleware, (req, res) => {res.sendFile(path.join(__dirname, 'views', 'profile.html'));});
 app.get('/admin-panel', authMiddleware, adminOnly, (req, res) => {res.sendFile(path.join(__dirname,'views', 'admin.html'));});
+app.get('/test', authMiddleware, (req, res) => {res.sendFile(path.join(__dirname,'views', 'test.html'));});
+
 // === /login Route ===
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -84,6 +86,10 @@ app.get('/api/admin-panel', authMiddleware, adminOnly, (req, res) => {
     res.json({ success: true, users: results});
   });
 });
+// === test route ===
+app.get('/api', authMiddleware, (req, res) => {
+    
+});
 
 // === PDF access ===
 app.get('/uploads/:filename', authMiddleware, (req, res) => {
@@ -98,6 +104,7 @@ app.get('/uploads/:filename', authMiddleware, (req, res) => {
     res.sendFile(filePath);
   });
 });
+
 // === from profile to db ===
 app.post('/api/update-tags', authMiddleware, (req, res) => {
   const userEmail = req.user.email;

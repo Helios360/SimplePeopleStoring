@@ -1,0 +1,46 @@
+header{align-items: center;}
+h2{font-size: 20px;font-weight: 500;}
+
+.exercise{
+    width:95vw;
+    height:75vh;
+    display: flex;
+    flex-direction: row;
+    gap:15px;
+}
+.exercise div {
+    width: auto;
+    border: 2px solid var(--secondary);
+    border-radius: 9px;
+}
+.exemple{
+    position: relative;
+}
+.exemple pre{
+    font-size: 15px;
+    padding: 10px;
+    margin: 0;
+    position: relative;
+    height:100%;
+}
+
+.response{
+    width:100%!important;
+}
+.submit{
+    width: 95vw;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding:15px 0;
+    align-items: center;
+}
+.submit a {
+    display: flex;
+    align-items: center;
+    height:20px;
+    border: 2px solid var(--secondary);
+    border-radius: 8px;
+    padding: 15px;
+    align-items: center;
+}
