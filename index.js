@@ -25,7 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 // === Static Files ===
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // === MySQL ===
 const db = mysql.createConnection({
   host: process.env.DB_HOST,

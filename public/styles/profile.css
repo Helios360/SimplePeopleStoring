@@ -3,15 +3,21 @@ main{
     justify-content: center;
     height:100vh;
 }
-p{
-    margin: 0;
-    padding: 0;
+input{
+    border: 2px var(--secondary) solid;
+    color:var(--secondary);
+    border-radius: 8px;
+    padding:7px;
+    cursor:pointer;
+    background-color: transparent;
+    font-size: 20px;
 }
 .contain{
     width:95%;
     height:100%;
     display: flex;
     justify-content: space-between;
+    gap:3%;
 }
 .info-view{
     width: 100%;
@@ -49,6 +55,11 @@ ul{
     list-style: none;
     padding: 0;
 }
+li{
+    display: flex;
+    justify-content: start;
+    max-width: 800px;
+}
 .docs {
     display: flex;
     gap:10px;
@@ -63,9 +74,21 @@ ul{
     cursor: pointer;
 }
 .info-list li {
-    display: flex;
-    gap:10px;
+  display: grid;
+  grid-template-columns: 40px 19% 1fr;
+  align-items: center;
+  max-width: 800px;
 }
+.city-postal {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.city-postal input {
+  width: 100%;
+}
+
 .box{
     border: 2px var(--secondary) solid;
     border-radius: 8px;
@@ -80,7 +103,7 @@ ul{
     width: fit-content;
     cursor:pointer;
 }
-input{
+.taging{
     border: 2px var(--secondary) solid;
     color:var(--secondary);
     border-radius: 8px;

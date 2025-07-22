@@ -3,6 +3,35 @@ const PI = document.getElementById('pi');
 const tag = document.getElementById('add_tags');
 const skills = document.getElementById('add_skills');
 const cv_frame = document.getElementById('cv_frame');
+const urlParams = new URLSearchParams(window.location.search);
+const targetEmail = urlParams.get('email'); // email from ?email=...
+const token = localStorage.getItem('token');
+
+// Load profile data
+const fetchUrl = targetEmail
+  ? `/api/admin/student/${encodeURIComponent(targetEmail)}`
+  : '/api/profile';
+
+fetch(fetchUrl, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
+.then(res => res.json())
+.then(data => {
+  if (!data.success) throw new Error(data.message);
+
+  const user = data.user || data.student;
+
+  // Fill form fields with user data
+  document.getElementById('name').value = user.name;
+  document.getElementById('fname').value = user.fname;
+  document.getElementById('tel').value = user.tel;
+  // ... populate other fields
+})
+.catch(err => {
+  alert('Failed to load profile: ' + err.message);
+});
 
 const skillTypes = {
   // Languages
@@ -129,9 +158,10 @@ fetch('/api/profile', {
 if (data.success) {
     const user = data.user;
     // Remplir les infos
-    document.getElementById('NomPrenom').textContent = user.name + " " + user.fname;
-    document.getElementById('email').textContent += user.email;
-    document.getElementById('tel').textContent += user.tel;
+    document.getElementById('name').value = user.name;
+    document.getElementById('fname').value = user.fname;
+    document.getElementById('email').value = user.email;
+    document.getElementById('tel').value = user.tel;
 
     const dateOnly = user.birth.split("T")[0].replace(/-/g, "/");
     const birthDate = new Date(user.birth);
@@ -142,9 +172,49 @@ if (data.success) {
         age--;
     }
 
-    document.getElementById('birthday').textContent = "Né le : " + dateOnly + " | " + age + " ans";
-    document.getElementById('city').textContent += user.city + ", " + user.postal;
-    document.getElementById('addr').textContent += user.addr;
+    document.getElementById('birth').value = user.birth.split("T")[0];
+    document.getElementById('city').value = user.city;
+    document.getElementById('postal').value = user.postal;
+
+    document.getElementById('addr').value = user.addr;
+    // Data save logic
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        const data = {
+            name: document.getElementById('name').value,
+            fname: document.getElementById('fname').value,
+            email: targetEmail || user.email,
+            tel: document.getElementById('tel').value,
+            birth: document.getElementById('birth').value,
+            addr: document.getElementById('addr').value,
+            city: document.getElementById('city').value,
+            postal: document.getElementById('postal').value,
+            tags: currentTags,
+            skills: currentSkills
+        };
+
+        const endpoint = targetEmail
+            ? '/api/admin/update-student'
+            : '/api/update-tags';
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (!result.success) throw new Error(result.message);
+            alert('Profil mis à jour avec succès');
+        })
+        .catch(err => {
+            console.error('Erreur lors de la sauvegarde', err);
+            alert('Échec de la mise à jour');
+        });
+    });
+
     const cvUrl = '/uploads/' + user.cv;
         fetch(cvUrl, {
             method: 'GET',
