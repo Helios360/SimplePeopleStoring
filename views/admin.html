@@ -30,23 +30,33 @@
     <main>
         <div class="inputInfo">
             <form id="search-form">
-                <input placeholder="Nom Prénom" name="name" type="text">
-                <select name="promo">
-                    <option value="" disabled selected hidden>Promo</option>
+            <input placeholder="Nom Prénom" id="nomPrenom" name="name" type="text">
+            <select class="status-select" id="searchStatus">
+                <option value="" selected>Status</option>
+                <option value="0">Archive</option>
+                <option value="1">En recherche</option>
+                <option value="2">Recherche active</option>
+            </select>
+            <span class="place">
+                <input placeholder="Lieu . . ." id="place">
+                <input placeholder="Distance.." id="dist">
+            </span>
+            <span class="place">
+                <input placeholder="Age" type="number" id="age">
+                <select name="tranche-age" id="trancheAge">
+                    <option value="" selected>Tranche</option>
+                    <option value="1821">18 - 21</option>
+                    <option value="2126">21 - 26</option>
                 </select>
-                <span class="place"><input placeholder="Lieu . . ." id="place"><input placeholder="Distance.." id="dist"></span>
-                <input placeholder="Age" type="number">
-                <select name="Statut">
-                    <option value="" disabled selected hidden>Statut</option>
-                </select>
-                <input placeholder="Tag +" name="Tags" type="text">
-                <span class="ai">
-                    <textarea name="AI_search" placeholder="J'ai de la chance :3"></textarea>
-                    <a id="sendPrompt"><u>Envoyer</u></a>
-                </span>
-            </form>
+            </span>
+            <input placeholder="Tag +" name="Tags" type="text" id="tags">
+            <span class="ai">
+                <textarea name="AI_search" placeholder="J'ai de la chance :3" id="aiSearch"></textarea>
+                <a id="sendPrompt"><u>Envoyer</u></a>
+            </span>
+        </form>
         </div>
-        <div class="list" id="list">
+        <div class="list" >
             <div class="header">
                 <span id="name-fname">
                     <p>Etudiant</p>
@@ -73,7 +83,9 @@
                     </svg>
                 </span>
             </div>
+            <div id="list"></div>
         </div>
+        
     </main>
 <script src="/scripts/Main.js"></script>
 <script src="/scripts/admin.js"></script>

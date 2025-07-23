@@ -129,7 +129,6 @@ app.post('/api/admin/update-student', authMiddleware, adminOnly, (req, res) => {
   const {
     email, name, fname, tel, birth, addr, city, postal, tags, skills, status
   } = req.body;
-
   db.query(
     'UPDATE Candidats SET name=?, fname=?, tel=?, birth=?, addr=?, city=?, postal=?, tags=?, skills=?, status=? WHERE email=?',
     [name, fname, tel, birth, addr, city, postal, JSON.stringify(tags), JSON.stringify(skills), status, email],

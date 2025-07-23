@@ -44,10 +44,15 @@ if (data.success) {
     document.getElementById('addr').value = user.addr;
     // Data save logic
     document.getElementById('saveBtn').addEventListener('click', () => {
+        const emailInput = document.getElementById('email').value.trim();
+        if (!emailInput || !emailInput.includes('@')) {
+            alert('Email invalide. Annulation de la sauvegarde.');
+            return;
+        }
         const data = {
             name: document.getElementById('name').value,
             fname: document.getElementById('fname').value,
-            email: targetEmail || user.email,
+            email: document.getElementById('email').value,
             tel: document.getElementById('tel').value,
             birth: document.getElementById('birth').value,
             addr: document.getElementById('addr').value,
@@ -166,16 +171,8 @@ if (data.success) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                name: document.getElementById('name').value,
-                fname: document.getElementById('fname').value,
-                tel: document.getElementById('tel').value,
-                birth: document.getElementById('birth').value,
-                addr: document.getElementById('addr').value,
-                city: document.getElementById('city').value,
-                postal: document.getElementById('postal').value,
                 tags: currentTags,
                 skills: currentSkills,
-                status: document.getElementById('status').value
             })
         })
         .then(res => res.json())
