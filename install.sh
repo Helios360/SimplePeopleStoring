@@ -49,10 +49,13 @@ CREATE TABLE IF NOT EXISTS Candidats (
     tags JSON,
     skills JSON,
     status TINYINT,
-    is_admin TINYINT
+    is_admin TINYINT,
+    tests JSON,
+    gen_score INT,
 );
 EOF
-
+# tests = [Frontend score/100 coef.1, Backend score/100 coef.0,70, Psychotechnical score/100 coef.1,5]
+# gen_score = (F + 0.7 * B + 1.5 * P) / 3.2
 if [ $? -ne 0 ]; then
   echo ":( Failed to set up database. Check your MySQL credentials and try again."
   exit 1

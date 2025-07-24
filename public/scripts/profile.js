@@ -7,6 +7,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const targetEmail = urlParams.get('email'); // email from ?email=...
 const token = localStorage.getItem('token');
 
+let currentTags = [];
+let currentSkills = [];
 // Load profile data
 const fetchUrl = targetEmail
   ? `/api/admin/student/${encodeURIComponent(targetEmail)}`
@@ -79,6 +81,7 @@ if (data.success) {
         .then(result => {
             if (!result.success) throw new Error(result.message);
             alert('Profil mis à jour avec succès');
+            renderTagsAndSkills();
         })
         .catch(err => {
             console.error('Erreur lors de la sauvegarde', err);
@@ -160,104 +163,10 @@ if (data.success) {
         pi.style.backgroundColor = "var(--secondary)";
         pi.style.color = "var(--primary)";
     });
-    let currentTags = Array.isArray(user.tags) ? user.tags : JSON.parse(user.tags || '[]');
-    let currentSkills = Array.isArray(user.skills) ? user.skills : JSON.parse(user.skills || '[]');
-
-    function updateTagsAndSkills() {
-        fetch('/api/update-tags', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                tags: currentTags,
-                skills: currentSkills,
-            })
-        })
-        .then(res => res.json())
-        .then(result => {
-            if (!result.success) throw new Error(result.message);
-        })
-        .catch(err => {
-            console.error("Failed to update tags/skills", err);
-            alert("Erreur lors de la mise à jour des tags/skills");
-        });
-
-        // Mise à jour des tags/skills affichés
-        const tagList = document.getElementById('tags');
-        const skillList = document.getElementById('skills');
-
-        tagList.innerHTML = '';
-        skillList.innerHTML = '';
-
-        currentTags.forEach(t => {
-            const span = document.createElement('span');
-            span.textContent = t;
-            let confirming = false;
-
-            span.onmouseenter = () => {
-                if (!confirming) {
-                    span.style.textDecoration = 'line-through';
-                }
-            };
-            span.onmouseleave = () => {
-                span.style.textDecoration = 'none';
-                if (confirming) {
-                    span.textContent = t;
-                    span.style.color = 'var(--secondary)';
-                    confirming = false;
-                }
-            };
-            span.onclick = () => {
-                if (!confirming) {
-                    span.textContent += ' ?';
-                    span.style.color = 'red';
-                    confirming = true;
-                } else {
-                    currentTags = currentTags.filter(tag => tag !== t);
-                    updateTagsAndSkills();
-                }
-            };
-            tagList.appendChild(span);
-        });
-
-        currentSkills.forEach(s => {
-            const span = document.createElement('span');
-            span.textContent = s;
-            const type = skillTypes[s] || 'unknown';
-            const bgColor = typeColors[type];
-            span.style.backgroundColor = bgColor;
-            let confirming = false;
-
-            span.onmouseenter = () => {
-                if (!confirming) {
-                    span.style.textDecoration = 'line-through';
-                }
-            };
-            span.onmouseleave = () => {
-                span.style.textDecoration = 'none';
-                if (confirming) {
-                    span.textContent = s;
-                    span.style.color = 'var(--secondary)';
-                    confirming = false;
-                }
-            };
-            span.onclick = () => {
-                if (!confirming) {
-                    span.textContent += ' ?';
-                    span.style.color = 'red';
-                    confirming = true;
-                } else {
-                    currentSkills = currentSkills.filter(tag => tag !== s);
-                    updateTagsAndSkills();
-                }
-            };
-            skillList.appendChild(span);
-        });
-    }
-
-    updateTagsAndSkills()
+    currentTags = Array.isArray(user.tags) ? user.tags : JSON.parse(user.tags || '[]');
+    currentSkills = Array.isArray(user.skills) ? user.skills : JSON.parse(user.skills || '[]');
+    renderTagsAndSkills();
+    
     const tagInput = document.getElementById('add_tags');
     const skillInput = document.getElementById('add_skills');
 
@@ -266,7 +175,7 @@ if (data.success) {
     const tag = tagInput.value.trim();
     if (tag && !currentTags.includes(tag)) {
         currentTags.push(tag);
-        updateTagsAndSkills();
+        renderTagsAndSkills();
     }
     tagInput.value = '';
     });
@@ -276,7 +185,7 @@ if (data.success) {
     const skill = skillInput.value.trim();
     if (skill && !currentSkills.includes(skill)) {
         currentSkills.push(skill);
-        updateTagsAndSkills();
+        renderTagsAndSkills();
     }
     skillInput.value = '';
     });
@@ -290,6 +199,78 @@ if (data.success) {
     alert("Erreur lors de la récupération du profil");
     window.location.href = '/signin';
 });
+function renderTagsAndSkills() {
+    const tagList = document.getElementById('tags');
+    const skillList = document.getElementById('skills');
+
+    tagList.innerHTML = '';
+    skillList.innerHTML = '';
+
+    currentTags.forEach(t => {
+        const span = document.createElement('span');
+        span.textContent = t;
+        let confirming = false;
+
+        span.onmouseenter = () => {
+            if (!confirming) {
+                span.style.textDecoration = 'line-through';
+            }
+        };
+        span.onmouseleave = () => {
+            span.style.textDecoration = 'none';
+            if (confirming) {
+                span.textContent = t;
+                span.style.color = 'var(--secondary)';
+                confirming = false;
+            }
+        };
+        span.onclick = () => {
+            if (!confirming) {
+                span.textContent += ' ?';
+                span.style.color = 'red';
+                confirming = true;
+            } else {
+                currentTags = currentTags.filter(tag => tag !== t);
+                renderTagsAndSkills(); // now handled locally
+            }
+        };
+        tagList.appendChild(span);
+    });
+
+    currentSkills.forEach(s => {
+        const span = document.createElement('span');
+        span.textContent = s;
+        const type = skillTypes[s] || 'unknown';
+        const bgColor = typeColors[type];
+        span.style.backgroundColor = bgColor;
+        let confirming = false;
+
+        span.onmouseenter = () => {
+            if (!confirming) {
+                span.style.textDecoration = 'line-through';
+            }
+        };
+        span.onmouseleave = () => {
+            span.style.textDecoration = 'none';
+            if (confirming) {
+                span.textContent = s;
+                span.style.color = 'var(--secondary)';
+                confirming = false;
+            }
+        };
+        span.onclick = () => {
+            if (!confirming) {
+                span.textContent += ' ?';
+                span.style.color = 'red';
+                confirming = true;
+            } else {
+                currentSkills = currentSkills.filter(tag => tag !== s);
+                renderTagsAndSkills();
+            }
+        };
+        skillList.appendChild(span);
+    });
+}
 
 const skillTypes = {
   // Languages

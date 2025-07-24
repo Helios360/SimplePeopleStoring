@@ -8,7 +8,7 @@ h2{font-size: 20px;font-weight: 500;}
     flex-direction: row;
     gap:15px;
 }
-.exercise div {
+.exercise > div {
     width: auto;
     border: 2px solid var(--secondary);
     border-radius: 9px;
@@ -23,9 +23,9 @@ h2{font-size: 20px;font-weight: 500;}
     position: relative;
     height:100%;
 }
-
 .response{
     width:100%!important;
+    overflow: hidden;
 }
 .submit{
     width: 95vw;

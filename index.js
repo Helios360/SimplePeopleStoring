@@ -257,6 +257,14 @@ app.post('/submit-form', (req, res) => {
   });
 });
 
+app.post('/api/test', authMiddleware, (req, res) => {
+  const userEmail = req.user.email;
+  const { answer } = req.body;
+  console.log(userEmail);
+  console.log(answer);
+  res.json({ message: "Answer received", success: true });
+});
+
 
 // === Fallback route ===
 app.use((req, res) => {
